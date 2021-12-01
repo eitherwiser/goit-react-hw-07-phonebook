@@ -1,14 +1,26 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 
-import { deleteContact, changeFilter } from "../../redux/contacts/contacts-actions.js"
+import { deleteContact } from "redux/contacts/contacts-actions.js"
 import s from "./ContactsList.module.css";
-
-
 //
-const ContactsList = ({ contacts, deleteContact }) => {
-  
+
+
+    const visibleContacts = (allContacts, filter) => {
+      const normalizeFilter = filter.toLowerCase();
+      return allContacts.filter((contact) => (
+        contact.name.toLowerCase().includes(normalizeFilter)))
+    };
+//
+
+
+const ContactsList = () => {
+
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => visibleContacts(state.contacts.items, state.contacts.filter));
+
+
   return (
     <>
       {!contacts.length && <h4>Contacts list is empty.</h4>}
@@ -30,7 +42,7 @@ const ContactsList = ({ contacts, deleteContact }) => {
               <button
                 type="button"
                 className={s.btn}
-                onClick={() => deleteContact(id)}
+                onClick={() => dispatch(deleteContact(id))}
               >
                 <span className="material-icons">delete</span>
               </button>
@@ -51,20 +63,7 @@ ContactsList.propTypes = {
     number: PropTypes.string.isRequired,
   })),
 };
-//
-
-const visibleContacts = (allContacts, filter) => {
-  const normalizeFilter = filter.toLowerCase();
-  return allContacts.filter((contact) => (
-    contact.name.toLowerCase().includes(normalizeFilter)))
-};
 
 
-const mapStateToProps = (state) => ({
-  contacts: visibleContacts(state.contacts.items, state.contacts.filter)
-});
-
-const mapDispatchToProps = { deleteContact, changeFilter };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ContactsList)
+export default connect()(ContactsList)
 
