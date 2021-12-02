@@ -7,11 +7,16 @@ import { fetchContacts, deleteContact } from '../../redux/contacts/contacts-oper
 import s from "./ContactsList.module.css";
 //
 
-
     const visibleContacts = (allContacts, filter) => {
       const normalizeFilter = filter.trim().toLowerCase();
-      return allContacts.filter((contact) => (
+      const name = allContacts.filter((contact) => (
         contact.name.toLowerCase().includes(normalizeFilter)))
+      const number = allContacts.filter((contact) => (
+        contact.number.toLowerCase().includes(normalizeFilter)))
+      const email = allContacts.filter((contact) => (
+        contact.email.toLowerCase().includes(normalizeFilter)))
+      const allResults = [...name, ...number, ...email];
+      return [...new Set(allResults)];
     };
 //
 
