@@ -1,6 +1,6 @@
-import { connect, useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
-import { changeFilter } from "redux/contacts/contacts-actions.js"
+import { changeFilter } from "../../redux/contacts/contacts-actions.js"
 import s from "./Filter.module.css";
 //
 
@@ -12,7 +12,7 @@ const Filter = () => {
   
   
   return (
-      <label>Find contacts by name &nbsp;
+      <label className={s.label}>Search contact &nbsp;
       <input
         className={s.input}
         type="text"
@@ -25,4 +25,4 @@ const Filter = () => {
 }
 
 
-export default connect()(Filter);
+export default (Filter);

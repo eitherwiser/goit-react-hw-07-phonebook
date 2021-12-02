@@ -1,14 +1,15 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { connect, useSelector, useDispatch } from "react-redux";
+import {useEffect} from "react";
+import { useSelector, useDispatch } from "react-redux";
+import Loader from '../../components/Loader/Loader.jsx'
 
-import { deleteContact } from "redux/contacts/contacts-actions.js"
+import Filter from '../../components/Filter/Filter.jsx';
+import { fetchContacts, deleteContact } from '../../redux/contacts/contacts-operations';
 import s from "./ContactsList.module.css";
 //
 
 
     const visibleContacts = (allContacts, filter) => {
-      const normalizeFilter = filter.toLowerCase();
+      const normalizeFilter = filter.trim().toLowerCase();
       return allContacts.filter((contact) => (
         contact.name.toLowerCase().includes(normalizeFilter)))
     };
@@ -19,26 +20,39 @@ const ContactsList = () => {
 
   const dispatch = useDispatch();
   const contacts = useSelector(state => visibleContacts(state.contacts.items, state.contacts.filter));
+  const isLoading = useSelector(state => state.contacts.loading)
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
 
   return (
     <>
+      <Filter />
       {!contacts.length && <h4>Contacts list is empty.</h4>}
+      {isLoading && <Loader/>}
       {!!contacts.length && 
-      <> 
-        <h4 className={s.list_title}>Contacts list:</h4>
-        <ul className={s.list}>
-          {contacts.map(({ id, name, number }) => (
-            <li
-              key={id}
-              className={s.list_item}
-            >
-
-              <a href={"tel:" + { number }}>
-                <span className={s.name}>{name}&nbsp;:</span>
-                <span className={s.number}>{number}</span>
-              </a>
-
+        <div className={s.table_wrapper}>
+        <div className={s.table_wrapper__scroll}>
+        <table className={s.table}>
+          <caption></caption>
+          <thead className={s.table_header}>
+          <tr>
+            <th><div className={s.table_header__floating_cell} label="Name"></div></th>
+            <th><div className={s.table_header__floating_cell} label="Phone number"></div></th>
+            <th><div className={s.table_header__floating_cell} label="E-mail"></div></th>
+            <th><div className={s.table_header__floating_cell} label="Options"></div></th>
+            <th class="scrollbarhead"/>
+          </tr>
+          </thead>
+          <tbody className={s.tbody}>
+          {contacts.map(({ name, number, email, id }) => (
+            <tr key={id} className={s.table_row}>
+            <td className={`${s.item} + ${ s.name}`}>{name}&nbsp;</td>
+            <td className={`${s.item} + ${ s.number}`}><a href={"tel:" + { number }} className={s.contact}>{number}</a></td>
+            <td className={`${s.item} + ${ s.email}`}><a href={"mailto:" + { email }} className={s.contact}>{email}</a></td>
+            <td className={`${s.item} + ${ s.options}`}>
               <button
                 type="button"
                 className={s.btn}
@@ -46,24 +60,16 @@ const ContactsList = () => {
               >
                 <span className="material-icons">delete</span>
               </button>
-            </li>))}
-        </ul>
-        </>
+              </td>
+            </tr>))}
+          </tbody>
+          </table>
+          </div>
+          </div>
       }
     </>
   );
 }
 
-ContactsList.propTypes = {
-  deleteContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    number: PropTypes.string.isRequired,
-  })),
-};
-
-
-export default connect()(ContactsList)
+export default ContactsList;
 
